@@ -4,6 +4,8 @@
 rm(list = ls())
 setwd("./Results")
 
+library(dplyr)
+
 ##############################################################
 ##       CPGEA samples' methylation data and filtering 
 ##############################################################
@@ -49,7 +51,7 @@ idx_me <- r_median > 0.25 & r_median < 0.75
 idx_iqr <- r_iqr > 0.1
 
 ### require significant correlated meCpG_CTCF in ENCODE      
-cpg_ctcf <- read.table("../Data/cor_res_o20_sig_filtered_mostSig_cpg_perCTCF.txt", header = T)
+cpg_ctcf <- read.table("./cor_res_o20_sig_filtered_mostSig_cpg_perCTCF.txt", header = T)
 idx_f <- match(rownames(me_beta), cpg_ctcf$cpg)
 
 idx_k <- idx_me & idx_iqr & !is.na(idx_f)
@@ -204,7 +206,7 @@ length(unique(snp_atac$V12))     ## number of ATAC-seqs
 ###########################################
 {
 ## function for all combinations SNP-CpG-Gene combos in CPG centered 1Mbp region
-  cpg_snp_gene <- function(file_tss_loci, file_snp_loci, file_cpg_loci, ExtDistance = 500000)
+  cpg_snp_gene <- function(file_tss_loci, file_snp_loci, file_cpg_loci, ExtDistance = 1000000)
   {
     library(ChIPpeakAnno)
     #######################################################

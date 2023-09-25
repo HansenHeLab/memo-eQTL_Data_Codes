@@ -10,7 +10,7 @@ library(ggpubr)
 library(gplots)
 
 ## readin all memo-eQTL mapping results 
-res <- readRDS("./memo-eQTLs_1731.RDS")
+res <- readRDS("./sig_memo-eQTLs.RDS")
 
 ########################################
 ### significant memo-eQTLs visualization
@@ -158,12 +158,12 @@ res <- readRDS("./memo-eQTLs_1731.RDS")
   snp_bed <- read.table(file_snp_loci, as.is = T)
   
   ##################################################################
-  ## Draw the memo-eQTLs shown in Fig2 and Fig 3 and Fig 3S
+  ## Draw the memo-eQTLs shown in Fig2 and and Fig 3S
   ##################################################################
-  snp_cpg_gene  <- c("rs7998201_chr13:102826051_TEX30", 
-                     "rs77216612_chr12:12714982_LOH12CR2", "rs77216612_chr12:12714982_RP11-253I19.3",
-                     "rs17194607_chr6:30238902_C6orf136", "rs1512270_chr8:23415796_TNFRSF10A")
-  
+  snp_cpg_gene  <- c("rs28452766_chr8:98471622_OSR2",
+                     "rs1932649_chr9:84238845_IDNK",
+                     "rs1507970_chr4:54683814_SRD5A3") 
+       
   L <- length(snp_cpg_gene)
   
   for(i in 1:L)

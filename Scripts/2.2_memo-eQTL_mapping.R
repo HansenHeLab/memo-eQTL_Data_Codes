@@ -12,7 +12,7 @@ setwd("./Results")
 
 ###########################
 #### Load the packages ####
-library(readr)
+library(readr)        ## read_table2
 library(data.table)
 library(plyr)
 library(future.apply)

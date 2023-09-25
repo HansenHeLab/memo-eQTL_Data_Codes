@@ -79,8 +79,8 @@ cmp <- readRDS("./all_tested_snp_cpg_gene_cmb_4_memo-eqtl.RDS")
     cmp_memo <- cmp[idx_memo, ]
     dim(cmp_memo)
     
-    saveRDS(cmp_memo, file = "memo-eQTLs_1731.RDS")
-    write.csv(cmp_memo, "memo-eQTLs_1731.csv")
+    saveRDS(cmp_memo, file = "sig_memo-eQTLs.RDS")
+    write.csv(cmp_memo, "sig_memo-eQTLs.csv")
   }
   
   

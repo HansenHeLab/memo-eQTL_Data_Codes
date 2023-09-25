@@ -7,7 +7,7 @@ setwd("./Results")
 library(ggplot2)
 library(dplyr)
 
-cmp_memo <- readRDS("./memo-eQTLs_1731.rds")
+cmp_memo <- readRDS("./sig_memo-eQTLs.RDS")
 
 ###################################################
 # add cor(cpg, ctcf)  snp and gene  information  
@@ -17,7 +17,7 @@ cmp_memo <- readRDS("./memo-eQTLs_1731.rds")
 cor_cpg_ctcf <- read.table("./cor_res_o20_sig_filtered_mostSig_cpg_perCTCF.txt", header = T, as.is = T)
 idx_cpg <- match(cmp_memo$mvar, cor_cpg_ctcf$cpg)
 
-cor_cpg_ctcf_add <- cor_cpg_ctcf[idx_cpg, ] %>%  dplyr::select(ctcf_id, cor_cpg_ctcf = pcc_2, cor_cpg_ctcf_fdr = qval_global, 
+cor_cpg_ctcf_add <- cor_cpg_ctcf[idx_cpg, ] %>%  dplyr::select(ctcf_id, cor_cpg_ctcf = scc_2, cor_cpg_ctcf_fdr = qval_global, 
                                                                chr, cpg_pos, ctcf_mid)
 
 file_tss_loci <- "./CPGEA_edata_normal_filtered_TSS.bed"
@@ -66,7 +66,7 @@ res_neg <- res[idx_neg, ]
 ##  memo-eQTLs separation with neg cor(cpg, ctcf)!!
 #################################################
 {
-  res <- res_neg[, -c(37:39)]     ## rm duplicated columns 
+  #res <- res_neg[, -c(37:39)]     ## rm duplicated columns 
   
   col_memo_lh <- rep("gray", nrow(res))
   idx_1 <- res$clus1.modelpval.value >= 0.05 & res$clus2.modelpval.value  < 0.05

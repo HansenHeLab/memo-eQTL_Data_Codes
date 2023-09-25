@@ -1,6 +1,6 @@
 ###################################################################
 ## Perform correlation test for all possible meCpG-CTCF pairs
-## Shell script|command and R script as below were used on cluster
+## Shell script/command and R script as below were used on cluster
 ###################################################################
 
 
@@ -23,11 +23,12 @@
 # cd ./Public_Data/ENCODE/
   
 # module load R/3.3.0
-# Rscript run_cortest.R $infile
+# Rscript run_cortest.R $infile 
 }
 
-################
+##################################
 ## run_cortest.R 
+## apply spearman correlation test 
 {
   args = commandArgs(trailingOnly=TRUE)
   infile <- read.table(args[1], header = T, sep = "\t")
@@ -45,7 +46,7 @@
     e2 <- NA
     p2 <- NA
     if ( length(!is.na(mevals) & !is.na(cvals)) >= 10){
-      ptest <- try(cor.test(mevals[!is.na(mevals) & !is.na(cvals)],cvals[!is.na(mevals) & !is.na(cvals)]))
+      ptest <- try(cor.test(mevals[!is.na(mevals) & !is.na(cvals)],cvals[!is.na(mevals) & !is.na(cvals)], method = "spearman"))
       if (class(ptest) == "htest"){
         e1 <- ptest$estimate
         p1 <- ptest$p.value
@@ -66,5 +67,6 @@
 
 #############################
 ## splited ruslt were mereged
-# cat x*txt > ./Results/cor_meCpG_CTCF_all.txt | gzip 
+# cat x*txt > ./Results/cor_meCpG_CTCF_pearson.txt 
+# cat x*txt > ./Results/cor_meCpG_CTCF_spearman.txt 
 

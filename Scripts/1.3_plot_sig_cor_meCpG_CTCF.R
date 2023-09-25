@@ -44,18 +44,18 @@ sig_cor <- read.table("./cor_res_o20_sig_filtered_mostSig_cpg_perCTCF.txt", head
 ##############################################
 {
 sig_neg <- filter(sig_cor, cor_cpg_ctcf_consis == -1 ) %>% 
-           arrange(qval_global, desc(pcc_2))
+           arrange(qval_global, desc(scc_2))
 
-## PCC_2 distribution 
-pdf("sig_neg_pcc_2_distribution.pdf", width = 4, height = 3)
-hist(sig_neg$pcc_2, breaks = 10, main = "cor(CTCF, meth)_Neg", xlab = "PCC")
+## scc_2 distribution 
+pdf("sig_neg_scc_2_distribution.pdf", width = 4, height = 3)
+hist(sig_neg$scc_2, breaks = 10, main = "cor(CTCF, meth)_Neg", xlab = "scc")
 dev.off()
 
 ## top 5 significantly pairs
 tmp1 <- sig_neg[1:5, ]
 
-## top 5 around the mean PCC_2 and cpg locate near to ctcf mid
-idx_t <- sig_neg$pcc_2 > -0.7 & abs(sig_neg$cpg2ctcf_mid) < 10
+## top 5 around the mean scc_2 and cpg locate near to ctcf mid
+idx_t <- sig_neg$scc_2 > -0.7 & abs(sig_neg$cpg2ctcf_mid) < 10
 sig_neg_t <- sig_neg[idx_t, ]
 tmp2 <- sig_neg_t[1:5, ]
 
@@ -92,19 +92,19 @@ ggsave(paste0("Neg_selected_eg_",i, "labeled.pdf"), width = 5, height = 5)
 ##############################################
 {
   sig_pos <- filter(sig_cor, cor_cpg_ctcf_consis == 1 ) %>% 
-    arrange(qval_global, desc(pcc_2))
+    arrange(qval_global, desc(scc_2))
   
-  ## PCC_2 distribution 
-  pdf("POS_sig_pcc_2_distribution.pdf", width = 4, height = 3)
-  hist(sig_pos$pcc_2, breaks = 10, main = "cor(CTCF, meth)_Pos", xlab = "PCC")
+  ## scc_2 distribution 
+  pdf("POS_sig_scc_2_distribution.pdf", width = 4, height = 3)
+  hist(sig_pos$scc_2, breaks = 10, main = "cor(CTCF, meth)_Pos", xlab = "scc")
   dev.off()
   
   ## top 5 significant 
   tmp1 <- sig_pos[1:5, ]
   
-  ## top 5 around the mean PCC_2 and cpg locate near to ctcf mid
-  summary(sig_pos$pcc_2)
-  idx_t <- sig_pos$pcc_2 < 0.77 & abs(sig_pos$cpg2ctcf_mid) < 10
+  ## top 5 around the mean scc_2 and cpg locate near to ctcf mid
+  summary(sig_pos$scc_2)
+  idx_t <- sig_pos$scc_2 < 0.77 & abs(sig_pos$cpg2ctcf_mid) < 10
   sig_pos_t <- sig_pos[idx_t, ]
   tmp2 <- sig_pos_t[1:5, ]
   

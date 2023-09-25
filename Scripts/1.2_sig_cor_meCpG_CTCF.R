@@ -9,12 +9,12 @@ library(scales)
 ## pre-filtering and annotation
 ###############################
 {
-cor_res <- read.table(gzfile("./cor_meCpG_CTCF_all.txt.gz"), as.is = T)
+cor_res <- read.table(gzfile("./cor_meCpG_CTCF_spearman.txt.gz"), as.is = T)
 
-## pcc_1 and pval_2 are pearson correlation coefficient and p vale for all meCpG-CTCF pairs; 
-## pcc_2 and pval_2 are pearson correlation coefficient and p vale for meCpG-CTCF pairs 
+## scc_1 and pval_2 are pearson correlation coefficient and p vale for all meCpG-CTCF pairs; 
+## scc_2 and pval_2 are pearson correlation coefficient and p vale for meCpG-CTCF pairs 
 ##   with methyalation total reads >= 20 in at least 10 samples 
-colnames(cor_res) <- c("ctcf_id", "cpg", "numTested_all", "pcc_1", "pval_1", "numTested_o20", "pcc_2", "pval_2")
+colnames(cor_res) <- c("ctcf_id", "cpg", "numTested_all", "scc_1", "pval_1", "numTested_o20", "scc_2", "pval_2")
 
 #########################################
 ## Focusing on variable meCpGs and CTCFs
@@ -28,8 +28,8 @@ par(mar = c(3, 3, 2, 1), mgp = c(2, 0.75, 0))
 hist(cpg_val_iqr, main = "", xlab = "IQR of meCpG ", breaks = 100)
 dev.off()
 
-## rule out IQR == 0 CpGs
-idx_cpg_r <- is.na(cpg_val_iqr) | cpg_val_iqr == 0
+## rule out IQR <= 0.1 CpGs
+idx_cpg_r <- is.na(cpg_val_iqr) | cpg_val_iqr <= 0.1
 cpg_r <- row.names(cpg_val)[idx_cpg_r]
 idx_cor_cpg <- !is.na(match(cor_res$cpg, cpg_r))
 
@@ -48,7 +48,7 @@ ctcf_r <- row.names(ctcf_val)[idx_ctcf_r]
 idx_cor_ctcf <- !is.na(match(cor_res$ctcf_id, ctcf_r))
 
 ## filtering out meCpG-CTCP pairs based on samples cnt, CTCF and CpG IQR 
-idx_r1 <- is.na(cor_res$pcc_2) | cor_res$numTested_o20 < 10 | idx_cor_cpg | idx_cor_ctcf
+idx_r1 <- is.na(cor_res$scc_2) | cor_res$numTested_o20 < 10 | idx_cor_cpg | idx_cor_ctcf
 cor_res_o20 <- cor_res[!idx_r1, ]
 
 ctcf_num <- length(unique(cor_res_o20$ctcf_id))
@@ -68,7 +68,7 @@ dev.off()
 
 ############################
 ## Multiple test corrections
-cor_res_o20_out <- data.frame(cor_res_o20[, c(1:2,6:8)])        ## ussing pcc_2 and pval_2
+cor_res_o20_out <- data.frame(cor_res_o20[, c(1:2,6:8)])        ## ussing scc_2 and pval_2
 qval_global <- p.adjust(cor_res_o20_out$pval_2, method = "BH")
 
 ##################################
@@ -106,17 +106,17 @@ cor_res_o20_out <- data.frame(cor_res_o20_out, qval_global, cpg_bed, cpg_ctcf)
 ## significant correlated meCpG-CTCF 
 ####################################
 {
-idx_sig <- abs(cor_res_o20_out$pcc_2) >= 0.5  & cor_res_o20_out$qval_global < 0.05
-idx_sig_p <- idx_sig &  cor_res_o20_out$pcc_2 > 0.5
-idx_sig_n <- idx_sig &  cor_res_o20_out$pcc_2 < 0.5
+idx_sig <- abs(cor_res_o20_out$scc_2) >= 0.5  & cor_res_o20_out$qval_global < 0.05
+idx_sig_p <- idx_sig &  cor_res_o20_out$scc_2 > 0.5
+idx_sig_n <- idx_sig &  cor_res_o20_out$scc_2 < 0.5
 
-## plot pcc vs padj for all 
+## plot scc vs padj for all 
 dat <- cor_res_o20_out
-g <- ggplot(dat, aes(x = pcc_2, y = -log10(qval_global))) + geom_hex(bins = 50, show.legend = T)
+g <- ggplot(dat, aes(x = scc_2, y = -log10(qval_global))) + geom_hex(bins = 50, show.legend = T)
 g <- g + geom_hline(yintercept = 1, linetype = "dashed", color = "brown3")
 g <- g + geom_vline(xintercept = c(-0.5, 0.5), linetype = "dashed", color = "brown3")
 g <- g + labs(x = "cor(meCpG, CTCF)", y = "-log10(FDR)") + theme_classic()
-ggsave("cor_res_o20_PCC_vs_padj_global_volcano.pdf", width = 4, height = 3)
+ggsave("cor_res_o20_scc_vs_padj_global_volcano.pdf", width = 4, height = 3)
 
 ## plot distance between meCpG to the center of CTCF
 cor_dir <- rep("notSig", length(idx_sig))
@@ -147,8 +147,8 @@ par(mar = c(3, 3, 2, 1), mgp = c(2, 0.75, 0))
 hist(table(cor_res_o20_sig$ctcf_id), main = "", xlab = "Number of meCpG per CTCF", breaks = 50)
 dev.off()
 
-## check whether PCC direction are consistent per CTCF
-cor_res_o20_sig <- group_by(cor_res_o20_sig, ctcf_id) %>%  mutate(cor_cpg_ctcf_consis = mean(sign(pcc_2)))
+## check whether scc direction are consistent per CTCF
+cor_res_o20_sig <- group_by(cor_res_o20_sig, ctcf_id) %>%  mutate(cor_cpg_ctcf_consis = mean(sign(scc_2)))
 idx_consist <- cor_res_o20_sig$cor_cpg_ctcf_consis == 1 | cor_res_o20_sig$cor_cpg_ctcf_consis == -1 
 cor_res_o20_sig$cor_cpg_ctcf_consis[!idx_consist] = 0
 
@@ -170,7 +170,7 @@ dev.off()
 ### bed file for sig cor(CG, CTCF)
 sig_cpg_bed <-  ungroup(cor_res_o20_sig) %>%  
                 select(chr, cpg_start, cpg_end, cpg, ctcf_id) %>%  
-                mutate(strand = ".", cor_cpg_ctcf = cor_res_o20_sig$pcc_2,
+                mutate(strand = ".", cor_cpg_ctcf = cor_res_o20_sig$scc_2,
                                      cor_pval = cor_res_o20_sig$pval_2, 
                                      cor_fdr = cor_res_o20_sig$qval_global )
 
@@ -197,7 +197,7 @@ g <- ggplot(dat, aes(x = cor_cpg_ctcf, y = -log10(cor_fdr))) + geom_hex(bins = 5
 g <- g + geom_hline(yintercept = 1, linetype = "dashed", color = "brown3")
 g <- g + geom_vline(xintercept = c(-0.5, 0.5), linetype = "dashed", color = "brown3")
 g <- g + labs(x = "cor(meCpG, CTCF)", y = "-log10(FDR)") + theme_classic()
-ggsave("cor_res_o20_PCC_vs_padj_global_mostSig_cpg_perCTCF_volcano.pdf", width = 4, height = 3)
+ggsave("cor_res_o20_scc_vs_padj_global_mostSig_cpg_perCTCF_volcano.pdf", width = 4, height = 3)
 
 #### adding corresponding information 
 idx_mm <- match(sig_cpg_bed_uniq$cpg, cor_res_o20_sig$cpg)
